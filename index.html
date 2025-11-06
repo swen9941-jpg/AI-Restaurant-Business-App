@@ -8,7 +8,7 @@
   body { background:#000; color:#FFD700; font-family:Arial,sans-serif; margin:0; padding:0; }
   h1,h2,h3 { text-align:center; color:gold; }
   .container { padding:10px; }
-  /* PIN Modal */
+  /* Modals */
   #pinModal, #staffModal, #customProductModal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; justify-content:center; align-items:center; z-index:999; }
   .hidden { display:none; }
   .modalBox { background:#111; padding:20px; border-radius:8px; text-align:center; max-width:400px; width:90%; }
@@ -96,10 +96,10 @@ Customer Name: <input type="text" id="custName" placeholder="Optional"><br><br>
 <script>
 /* ===== CONFIG ===== */
 const WHATSAPP_NUMBER = "50585065976";
-const STORE_KEY = "swenpos_pro_v1";
+const STORE_KEY = "swenpos_pro_v2";
 let state = JSON.parse(localStorage.getItem(STORE_KEY)) || {
     pin:"1234",
-    staff:[], // {name, checkedIn:false, onBreak:false, totalTime:0, startTime:null}
+    staff:[],
     products:[
         {name:"Fries Classic", price:3.5, qty:20},
         {name:"Cheesy Fries", price:4.5, qty:12},
@@ -115,11 +115,10 @@ let state = JSON.parse(localStorage.getItem(STORE_KEY)) || {
 /* ===== PIN LOGIN ===== */
 const pinModal = document.getElementById("pinModal");
 const pinInput = document.getElementById("pinInput");
-pinModal.classList.remove("hidden");
 document.getElementById("pinLogin").onclick = ()=>{
     if(pinInput.value === state.pin){
         pinModal.classList.add("hidden"); renderAll();
-        openStaffModal(); // show staff clock-in at start
+        // Removed auto staff modal
     } else alert("Incorrect PIN");
 }
 document.getElementById("pinGuest").onclick = ()=>{
@@ -140,30 +139,18 @@ function openStaffModal(){ staffModal.classList.remove("hidden"); renderStaff();
 function closeStaffModal(){ staffModal.classList.add("hidden"); }
 function clockIn(idx){
     const s=state.staff[idx];
-    if(!s.checkedIn){
-        s.checkedIn=true; s.startTime=Date.now(); s.onBreak=false;
-    }
+    if(!s.checkedIn){ s.checkedIn=true; s.startTime=Date.now(); s.onBreak=false; }
     saveState(); renderStaff();
 }
 function startBreak(idx){
     const s=state.staff[idx];
-    if(s.checkedIn && !s.onBreak){
-        s.onBreak=true;
-        s.totalTime += (Date.now()-s.startTime);
-    } else if(s.onBreak){
-        s.onBreak=false;
-        s.startTime=Date.now();
-    }
+    if(s.checkedIn && !s.onBreak){ s.onBreak=true; s.totalTime += (Date.now()-s.startTime); }
+    else if(s.onBreak){ s.onBreak=false; s.startTime=Date.now(); }
     saveState(); renderStaff();
 }
 function clockOut(idx){
     const s=state.staff[idx];
-    if(s.checkedIn){
-        if(!s.onBreak) s.totalTime += (Date.now()-s.startTime);
-        s.checkedIn=false; s.startTime=null; s.onBreak=false;
-        alert(`${s.name} worked ${(s.totalTime/1000/60).toFixed(2)} minutes`);
-        s.totalTime=0;
-    }
+    if(s.checkedIn){ if(!s.onBreak) s.totalTime += (Date.now()-s.startTime); s.checkedIn=false; s.startTime=null; s.onBreak=false; alert(`${s.name} worked ${(s.totalTime/1000/60).toFixed(2)} minutes`); s.totalTime=0; }
     saveState(); renderStaff();
 }
 function renderStaff(){
@@ -227,7 +214,6 @@ function renderCart(){
 /* ====== ORDERS / TICKET / WHATSAPP ===== */
 document.getElementById("placeOrderBtn").onclick = ()=>{
     if(cart.length===0){ alert("Cart empty"); return; }
-    // Save order
     state.orders.push({items:[...cart], total:cartTotal, customer:custName.value, time:new Date().toISOString()});
     saveState(); renderCart(); renderProducts();
     // Print kitchen ticket automatically
