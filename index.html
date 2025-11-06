@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Sidebar / Navigation -->
     <aside class="sidebar">
         <h2>Business Dashboard</h2>
         <ul>
@@ -15,16 +14,19 @@
             <li><a href="#orders">Online Orders</a></li>
             <li><a href="#staff">Staff Management</a></li>
             <li><a href="#expenses">Expenses</a></li>
+            <li><a href="#inventory">Inventory</a></li>
             <li><a href="#ai-insights">AI Insights</a></li>
         </ul>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
-        <!-- Sales Placeholder -->
+        <!-- Sales Summary -->
         <section id="sales">
             <h3>Sales & POS</h3>
-            <p>Track daily sales, inventory, and generate reports.</p>
+            <p>Total Orders Today: <span id="totalOrders">0</span></p>
+            <p>Total Revenue: $<span id="totalRevenue">0.00</span></p>
+            <h4>Top Selling Items:</h4>
+            <ul id="topItems"></ul>
         </section>
 
         <!-- Online Orders -->
@@ -64,10 +66,21 @@
             <p>Total Expenses: $<span id="expenseTotal">0</span></p>
         </section>
 
-        <!-- AI Insights Placeholder -->
+        <!-- Inventory -->
+        <section id="inventory">
+            <h3>Inventory Management</h3>
+            <form id="inventoryForm">
+                <input type="text" id="inventoryItem" placeholder="Item Name" required>
+                <input type="number" id="inventoryQty" placeholder="Quantity" required>
+                <button type="submit">Add / Update Stock</button>
+            </form>
+            <ul id="inventoryList"></ul>
+        </section>
+
+        <!-- AI Insights -->
         <section id="ai-insights">
             <h3>AI Insights</h3>
-            <p>AI recommendations for sales, staff, and operations will appear here.</p>
+            <ul id="aiList"></ul>
         </section>
     </main>
 
