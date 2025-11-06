@@ -5,324 +5,168 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Luxury POS System</title>
 <style>
-:root {--black:#111; --gold:#FFD700; --muted:#ccc;}
-body {margin:0; font-family:sans-serif; background:var(--black); color:var(--gold);}
-header {padding:10px; background:var(--black); text-align:center; font-size:1.5em;}
-#loginScreen,#posScreen {display:none; height:100vh;}
-.flex {display:flex; gap:10px;}
-.productsGrid {display:flex; flex-wrap:wrap; gap:10px; padding:10px;}
-.product-card {background:#222; padding:10px; flex:1 1 120px; border-radius:8px; display:flex; flex-direction:column; justify-content:space-between;}
-.product-card button {margin-top:5px; padding:10px; background:var(--gold); color:#111; border:none; font-weight:bold; cursor:pointer; font-size:16px;}
-.cart {position:fixed; right:0; top:0; background:#222; width:280px; height:100%; padding:10px; overflow:auto;}
-.cart h2{margin-top:0;}
-.cart ul{list-style:none; padding:0;}
-.cart button{padding:5px; background:var(--gold); color:#111; border:none; margin-top:5px; cursor:pointer;}
-.modal {position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; justify-content:center; align-items:center; z-index:999; display:none;}
-.modal.active {display:flex;}
-.modalBox{background:#111; padding:20px; border-radius:8px; width:90%; max-width:400px; text-align:center;}
-.modalBox input, .modalBox select, .modalBox button{width:80%; margin:5px 0; padding:10px; font-size:16px;}
-.badge-low {background:red; color:#fff; padding:2px 5px; border-radius:3px; margin-top:5px; font-size:12px;}
-.btn {padding:5px 10px; margin:2px; background:var(--gold); color:#111; border:none; cursor:pointer;}
-.statBox {display:flex; gap:10px; justify-content:center; margin:10px;}
-.statBox div {background:#222; padding:10px; border-radius:8px; flex:1; text-align:center;}
+  body { font-family: Arial, sans-serif; background: #111; color: #f5d000; margin:0; padding:0; }
+  header { background:#000; color:#f5d000; padding:15px; text-align:center; font-size:24px; }
+  .container { display:flex; flex-wrap:wrap; padding:10px; }
+  .category-btn { background:#222; color:#f5d000; border:none; margin:5px; padding:10px 15px; cursor:pointer; font-weight:bold; border-radius:5px; }
+  .product-card { background:#222; border-radius:8px; padding:10px; margin:5px; width:150px; text-align:center; flex:1 0 21%; box-shadow:0 0 10px #f5d000; }
+  .product-card button { background:#f5d000; color:#000; border:none; padding:5px 10px; margin-top:5px; cursor:pointer; border-radius:4px; font-weight:bold; width:100%; }
+  .badge-low { background:red; color:white; padding:2px 5px; border-radius:3px; font-size:12px; margin-top:5px; display:inline-block; }
+  #cart { background:#111; padding:10px; width:300px; float:right; border-left:2px solid #f5d000; height:100vh; overflow:auto; }
+  #cart h2 { text-align:center; }
+  #cart ul { list-style:none; padding:0; }
+  #cart li { display:flex; justify-content:space-between; align-items:center; margin:5px 0; }
+  .btn-small { background:#f5d000; border:none; padding:2px 5px; cursor:pointer; color:#000; border-radius:3px; margin-left:5px; }
+  .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; justify-content:center; align-items:center; color:#f5d000; z-index:999; }
+  .modal-content { background:#222; padding:20px; border-radius:10px; width:400px; max-height:80%; overflow:auto; }
+  .modal-content input, .modal-content select { width:100%; padding:5px; margin:5px 0; border-radius:4px; border:none; }
+  .modal-content button { margin-top:10px; }
 </style>
 </head>
 <body>
 
 <header>Luxury POS System</header>
 
-<!-- LOGIN -->
-<div id="loginScreen">
-  <h2>Enter PIN</h2>
-  <input type="password" id="pinInput" placeholder="Enter PIN" style="font-size:18px; padding:10px;">
-  <button id="loginBtn">Login</button>
+<div class="container" id="categoryContainer">
+  <button class="category-btn" data-cat="All">All</button>
+  <button class="category-btn" data-cat="Fries">Fries</button>
+  <button class="category-btn" data-cat="Burgers">Burgers</button>
+  <button class="category-btn" data-cat="Drinks">Drinks</button>
 </div>
 
-<!-- POS SCREEN -->
-<div id="posScreen">
-  <div class="flex">
-    <div class="productsGrid" id="productsGrid"></div>
-    <div class="cart">
-      <h2>Cart</h2>
-      <ul id="cartList"></ul>
-      <div>Total: $<span id="cartTotal">0.00</span></div>
-      <button id="addCustomProductBtn">Add Custom Product</button>
-      <button id="placeOrder">Place Order</button>
-      <button id="openStaff">Staff</button>
-      <button id="openExpenses">Expenses</button>
-      <button id="openInventory">Inventory</button>
-    </div>
-  </div>
+<div class="container" id="productsGrid"></div>
 
-  <div class="statBox">
-    <div>Orders: <span id="statOrders">0</span></div>
-    <div>Revenue: $<span id="statRevenue">0.00</span></div>
-  </div>
-
-  <h3>Insights</h3>
-  <ul id="insightsList"></ul>
+<div id="cart">
+  <h2>Cart</h2>
+  <ul id="cartList"></ul>
+  <div>Total: $<span id="cartTotal">0.00</span></div>
+  <button id="placeOrder">Place Order</button>
+  <button id="addCustomBtn">Add Custom Product</button>
 </div>
 
-<!-- MODALS -->
-
-<!-- Custom Product -->
-<div class="modal" id="customProductModal">
-  <div class="modalBox">
-    <h2>Add Custom Product</h2>
+<!-- Custom Product Modal -->
+<div class="modal" id="customModal">
+  <div class="modal-content">
+    <h3>Add Custom Product</h3>
     <input type="text" id="customName" placeholder="Product Name">
-    <input type="number" id="customPrice" placeholder="Price" min="0" step="0.01">
-    <input type="number" id="customQty" placeholder="Quantity" min="1" step="1">
-    <button id="customAddBtn">Add to Cart</button>
-    <button onclick="closeModal('customProductModal')">Cancel</button>
-  </div>
-</div>
-
-<!-- Staff Modal -->
-<div class="modal" id="staffModal">
-  <div class="modalBox">
-    <h2>Staff Management</h2>
-    <input type="text" id="staffName" placeholder="Staff Name">
-    <select id="staffAction">
-      <option value="checkin">Clock In</option>
-      <option value="break">Break/Resume</option>
-      <option value="checkout">Clock Out</option>
-    </select>
-    <button id="staffSubmitBtn">Submit</button>
-    <button onclick="closeModal('staffModal')">Close</button>
-    <h3>Staff Hours</h3>
-    <ul id="staffList"></ul>
-  </div>
-</div>
-
-<!-- Expenses Modal -->
-<div class="modal" id="expensesModal">
-  <div class="modalBox">
-    <h2>Expense Tracker</h2>
-    <input type="text" id="expenseName" placeholder="Expense Name">
-    <input type="number" id="expenseAmount" placeholder="Amount" min="0" step="0.01">
-    <button id="expenseSubmitBtn">Add Expense</button>
-    <button onclick="closeModal('expensesModal')">Close</button>
-    <h3>Expenses</h3>
-    <ul id="expenseList"></ul>
-    Total: $<span id="expenseTotal">0.00</span>
-  </div>
-</div>
-
-<!-- Inventory Modal -->
-<div class="modal" id="inventoryModal">
-  <div class="modalBox">
-    <h2>Inventory</h2>
-    <input type="text" id="invName" placeholder="Product Name">
-    <input type="number" id="invQty" placeholder="Quantity" min="0">
-    <input type="number" id="invPrice" placeholder="Price" min="0" step="0.01">
-    <button id="invSubmitBtn">Add / Update</button>
-    <button onclick="closeModal('inventoryModal')">Close</button>
-    <ul id="inventoryList"></ul>
+    <input type="number" id="customPrice" placeholder="Price" step="0.01">
+    <input type="number" id="customQty" placeholder="Quantity" step="1">
+    <button id="saveCustom">Add to Cart</button>
+    <button id="cancelCustom">Cancel</button>
   </div>
 </div>
 
 <script>
-// -------------------- State --------------------
-const STORE_KEY = "luxury_pos_v1";
-let state = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
-if(!state.products) state = {
-  products: {
-    "Fries Classic": {price:3.5, qty:20},
-    "Cheesy Fries": {price:4.5, qty:12},
-    "Bacon Fries": {price:5.5, qty:8},
-    "Burger": {price:7, qty:6},
-    "Soda": {price:1.5, qty:30}
-  },
-  orders: [],
-  staff:{},
-  expenses:[]
+// ---------- Data ----------
+const STORE_KEY="pos_luxury_v1";
+let state = JSON.parse(localStorage.getItem(STORE_KEY)) || {
+  products: [
+    { name:"Fries Classic", price:3.5, qty:20, category:"Fries" },
+    { name:"Cheesy Fries", price:4.5, qty:12, category:"Fries" },
+    { name:"Bacon Fries", price:5.5, qty:8, category:"Fries" },
+    { name:"Burger", price:7, qty:6, category:"Burgers" },
+    { name:"Soda", price:1.5, qty:30, category:"Drinks" }
+  ],
+  orders: []
 };
-let cart = [];
+let cart=[];
 
-// -------------------- PIN LOGIN --------------------
-const PIN = "1234";
-const loginScreen = document.getElementById("loginScreen");
-const posScreen = document.getElementById("posScreen");
-document.getElementById("loginBtn").onclick = ()=>{
-  const val = document.getElementById("pinInput").value;
-  if(val===PIN){ loginScreen.style.display="none"; posScreen.style.display="block"; renderAll(); }
-  else alert("Invalid PIN");
-};
+// ---------- Save ----------
+function saveState(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
 
-// -------------------- MODAL HELPERS --------------------
-function openModal(id){ document.getElementById(id).classList.add("active"); }
-function closeModal(id){ document.getElementById(id).classList.remove("active"); }
+// ---------- Render Products ----------
+const productsGrid = document.getElementById("productsGrid");
+const categoryContainer = document.getElementById("categoryContainer");
 
-// -------------------- Render Products --------------------
-function renderProducts(){
-  const grid = document.getElementById("productsGrid");
-  grid.innerHTML="";
-  for(const [name, info] of Object.entries(state.products)){
+function renderProducts(filter="All"){
+  productsGrid.innerHTML="";
+  state.products.filter(p=>filter==="All"||p.category===filter).forEach(prod=>{
     const card = document.createElement("div"); card.className="product-card";
-    card.innerHTML = `<div>${name}</div><div>$${info.price.toFixed(2)}</div><div>Stock: ${info.qty}</div>`;
-    if(info.qty<=2){ const b=document.createElement("div");b.className="badge-low";b.textContent="LOW";card.appendChild(b);}
-    const btn=document.createElement("button"); btn.textContent="Add"; btn.onclick=()=>addToCart(name); if(info.qty<=0) btn.disabled=true;
-    card.appendChild(btn); grid.appendChild(card);
-  }
+    card.innerHTML=`<div>${prod.name}</div>
+                    <div>$${prod.price.toFixed(2)}</div>
+                    <div>Stock: ${prod.qty}</div>`;
+    if(prod.qty<=2) card.innerHTML += `<div class="badge-low">LOW</div>`;
+    const btn = document.createElement("button");
+    btn.textContent="Add to Cart";
+    btn.disabled=prod.qty<=0;
+    btn.onclick=()=> addToCart(prod);
+    card.appendChild(btn);
+    productsGrid.appendChild(card);
+  });
 }
 
-// -------------------- CART --------------------
-function addToCart(name, price=null, qty=1){
-  const prod = state.products[name];
-  if(!prod && !price) return alert("Invalid product");
-  for(let i=0;i<qty;i++){ cart.push({name, price: price||prod.price}); }
+// ---------- Category Filter ----------
+categoryContainer.querySelectorAll(".category-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>renderProducts(btn.dataset.cat));
+});
+
+// ---------- Add to Cart ----------
+function addToCart(prod){
+  cart.push({...prod});
   renderCart();
 }
+
+// ---------- Render Cart ----------
+const cartList=document.getElementById("cartList");
+const cartTotal=document.getElementById("cartTotal");
 
 function renderCart(){
-  const list = document.getElementById("cartList"); list.innerHTML="";
+  cartList.innerHTML="";
   let total=0;
-  cart.forEach((it,i)=>{
+  cart.forEach((item,i)=>{
     const li=document.createElement("li");
-    li.innerHTML=`${it.name} - $${it.price.toFixed(2)}`;
-    const rm=document.createElement("button"); rm.textContent="x"; rm.onclick=()=>{cart.splice(i,1); renderCart();};
-    li.appendChild(rm); list.appendChild(li);
-    total+=it.price;
+    li.innerHTML=`<div>${item.name} - $${item.price.toFixed(2)}</div>`;
+    const rm=document.createElement("button"); rm.className="btn-small"; rm.textContent="x";
+    rm.onclick=()=>{ cart.splice(i,1); renderCart(); };
+    li.appendChild(rm);
+    cartList.appendChild(li);
+    total+=item.price;
   });
-  document.getElementById("cartTotal").textContent=total.toFixed(2);
+  cartTotal.textContent=total.toFixed(2);
 }
 
-// -------------------- PLACE ORDER --------------------
-document.getElementById("placeOrder").onclick=()=>{
-  if(cart.length===0) return alert("Cart empty");
-  // deduct stock
-  cart.forEach(it=>{ if(state.products[it.name]) state.products[it.name].qty-=1; });
-  // create order
-  const order = {id:"O"+Date.now(), items:[...cart], total:cart.reduce((s,i)=>s+i.price,0), time:new Date().toISOString()};
-  state.orders.push(order);
-  // save
-  saveState();
-  renderAll();
-  printReceipt(order);
-  sendWhatsApp(order);
-  cart=[];
-  renderCart();
-  alert("Order placed!");
-};
+// ---------- Custom Product Modal ----------
+const customModal=document.getElementById("customModal");
+document.getElementById("addCustomBtn").onclick=()=> customModal.style.display="flex";
+document.getElementById("cancelCustom").onclick=()=> customModal.style.display="none";
 
-// -------------------- CUSTOM PRODUCT --------------------
-document.getElementById("addCustomProductBtn").onclick=()=>openModal("customProductModal");
-document.getElementById("customAddBtn").onclick=()=>{
+document.getElementById("saveCustom").onclick=()=>{
   const name=document.getElementById("customName").value.trim();
   const price=parseFloat(document.getElementById("customPrice").value);
   const qty=parseInt(document.getElementById("customQty").value);
   if(!name || isNaN(price) || isNaN(qty)) return alert("Enter valid values");
-  addToCart(name, price, qty);
-  document.getElementById("customName").value="";
-  document.getElementById("customPrice").value="";
-  document.getElementById("customQty").value="";
-  closeModal("customProductModal");
+  for(let i=0;i<qty;i++) cart.push({name, price});
+  customModal.style.display="none";
+  document.getElementById("customName").value=""; document.getElementById("customPrice").value=""; document.getElementById("customQty").value="";
+  renderCart();
 };
 
-// -------------------- STAFF --------------------
-document.getElementById("openStaff").onclick=()=>openModal("staffModal");
-document.getElementById("staffSubmitBtn").onclick=()=>{
-  const name=document.getElementById("staffName").value.trim();
-  const action=document.getElementById("staffAction").value;
-  if(!name) return;
-  if(!state.staff[name]) state.staff[name]={checkin:null,totalHours:0,breakStart:null};
-  const staff=state.staff[name];
-  const now=Date.now();
-  if(action==="checkin"){ staff.checkin=now; alert(`${name} checked in`);}
-  else if(action==="break"){
-    if(staff.breakStart){ staff.totalHours+= (now-staff.breakStart)/(1000*60*60); staff.breakStart=null; alert(`${name} resumed work`);}
-    else{ staff.breakStart=now; alert(`${name} on break`);}
-  }
-  else if(action==="checkout"){ 
-    if(staff.checkin){ staff.totalHours+= (now-staff.checkin)/(1000*60*60); staff.checkin=null; alert(`${name} checked out`);}
-    else alert("No check-in recorded");
-  }
-  document.getElementById("staffName").value="";
-  saveState(); renderStaff();
+// ---------- Place Order ----------
+document.getElementById("placeOrder").onclick=()=>{
+  if(cart.length===0) return alert("Cart empty");
+  // Reduce stock if exists
+  cart.forEach(item=>{
+    const prod=state.products.find(p=>p.name===item.name);
+    if(prod) prod.qty-=1;
+  });
+  const order={ id:"O"+Date.now(), items:[...cart], total:cart.reduce((s,i)=>s+i.price,0), time:new Date().toLocaleString() };
+  state.orders.push(order);
+  saveState();
+  // Auto print receipt
+  let receipt=`Order ID: ${order.id}\nTime: ${order.time}\nItems:\n`;
+  order.items.forEach(i=> receipt += `- ${i.name} $${i.price.toFixed(2)}\n`);
+  receipt += `Total: $${order.total.toFixed(2)}`;
+  const newWin=window.open("","Print","width=400,height=600"); newWin.document.write(`<pre>${receipt}</pre>`); newWin.print();
+  // WhatsApp send
+  const waMsg=encodeURIComponent(receipt);
+  window.open(`https://wa.me/50585065976?text=${waMsg}`);
+  cart=[]; renderCart(); renderProducts();
 };
 
-function renderStaff(){
-  const ul=document.getElementById("staffList"); ul.innerHTML="";
-  for(const [name,s] of Object.entries(state.staff)){
-    const li=document.createElement("li");
-    li.textContent=`${name} • Hours: ${s.totalHours.toFixed(2)} ${s.checkin?"• Checked in":""} ${s.breakStart?"• On break":""}`;
-    ul.appendChild(li);
-  }
-}
-
-// -------------------- EXPENSES --------------------
-document.getElementById("openExpenses").onclick=()=>openModal("expensesModal");
-document.getElementById("expenseSubmitBtn").onclick=()=>{
-  const name=document.getElementById("expenseName").value.trim();
-  const amount=parseFloat(document.getElementById("expenseAmount").value);
-  if(!name || isNaN(amount)) return alert("Enter valid values");
-  state.expenses.push({name,amount,time:new Date().toISOString()});
-  document.getElementById("expenseName").value=""; document.getElementById("expenseAmount").value="";
-  saveState(); renderExpenses();
-};
-function renderExpenses(){
-  const ul=document.getElementById("expenseList"); ul.innerHTML=""; let total=0;
-  state.expenses.forEach(e=>{ const li=document.createElement("li"); li.textContent=`${e.name} - $${e.amount.toFixed(2)}`; ul.appendChild(li); total+=e.amount;});
-  document.getElementById("expenseTotal").textContent=total.toFixed(2);
-}
-
-// -------------------- INVENTORY --------------------
-document.getElementById("openInventory").onclick=()=>openModal("inventoryModal");
-document.getElementById("invSubmitBtn").onclick=()=>{
-  const name=document.getElementById("invName").value.trim();
-  const qty=parseInt(document.getElementById("invQty").value);
-  const price=parseFloat(document.getElementById("invPrice").value);
-  if(!name || isNaN(qty) || isNaN(price)) return alert("Enter valid values");
-  state.products[name]={price, qty};
-  document.getElementById("invName").value=""; document.getElementById("invQty").value=""; document.getElementById("invPrice").value="";
-  saveState(); renderProducts(); renderInventoryList();
-};
-function renderInventoryList(){
-  const ul=document.getElementById("inventoryList"); ul.innerHTML="";
-  for(const [name,p] of Object.entries(state.products)){
-    const li=document.createElement("li"); li.textContent=`${name} - ${p.qty} in stock - $${p.price.toFixed(2)}`; ul.appendChild(li);
-  }
-}
-
-// -------------------- INSIGHTS --------------------
-function renderInsights(){
-  const ul=document.getElementById("insightsList"); ul.innerHTML="";
-  for(const [name,p] of Object.entries(state.products)){ if(p.qty<=2){ const li=document.createElement("li"); li.textContent=`Low stock: ${name} (${p.qty})`; ul.appendChild(li);}}
-  const counts={};
-  state.orders.forEach(o=>o.items.forEach(i=>counts[i.name]=(counts[i.name]||0)+1));
-  const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,3);
-  top.forEach(([name,c])=>{ const li=document.createElement("li"); li.textContent=`Top seller: ${name} - sold ${c} times`; ul.appendChild(li);});
-}
-
-// -------------------- STATS --------------------
-function renderStats(){
-  document.getElementById("statOrders").textContent=state.orders.length;
-  document.getElementById("statRevenue").textContent="$"+state.orders.reduce((s,o)=>s+o.total,0).toFixed(2);
-}
-
-// -------------------- SAVE STATE --------------------
-function saveState(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
-
-// -------------------- ALL RENDER --------------------
-function renderAll(){ renderProducts(); renderCart(); renderStaff(); renderExpenses(); renderInventoryList(); renderInsights(); renderStats(); }
-
-// -------------------- PRINT RECEIPT --------------------
-function printReceipt(order){
-  let win = window.open("","","width=400,height=600");
-  win.document.write(`<pre>Order ID: ${order.id}\nTime: ${new Date(order.time).toLocaleString()}\nItems:\n`);
-  order.items.forEach(i=>win.document.write(`${i.name} - $${i.price.toFixed(2)}\n`));
-  win.document.write(`\nTotal: $${order.total.toFixed(2)}</pre>`);
-  win.print(); win.close();
-}
-
-// -------------------- WHATSAPP --------------------
-function sendWhatsApp(order){
-  let msg = `Order ID: ${order.id}%0ATime: ${new Date(order.time).toLocaleString()}%0AItems:%0A`;
-  order.items.forEach(i=> msg+=`${i.name} - $${i.price.toFixed(2)}%0A`);
-  msg+=`Total: $${order.total.toFixed(2)}`;
-  window.open(`https://wa.me/50585065976?text=${msg}`,"_blank");
-}
-
+// ---------- Initial render ----------
+renderProducts();
+renderCart();
 </script>
+
 </body>
 </html>
