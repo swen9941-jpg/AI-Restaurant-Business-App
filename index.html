@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Restaurant & Business App</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Sidebar / Navigation -->
+    <aside class="sidebar">
+        <h2>Business Dashboard</h2>
+        <ul>
+            <li><a href="#sales">Sales & POS</a></li>
+            <li><a href="#orders">Online Orders</a></li>
+            <li><a href="#staff">Staff Management</a></li>
+            <li><a href="#expenses">Expenses</a></li>
+            <li><a href="#ai-insights">AI Insights</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Sales Placeholder -->
+        <section id="sales">
+            <h3>Sales & POS</h3>
+            <p>Track daily sales, inventory, and generate reports.</p>
+        </section>
+
+        <!-- Online Orders -->
+        <section id="orders">
+            <h3>Online Orders</h3>
+            <form id="orderForm">
+                <input type="text" id="orderCustomer" placeholder="Customer Name" required>
+                <input type="text" id="orderItem" placeholder="Item Ordered" required>
+                <button type="submit">Add Order</button>
+            </form>
+            <ul id="orderList"></ul>
+        </section>
+
+        <!-- Staff Management -->
+        <section id="staff">
+            <h3>Staff Management</h3>
+            <form id="staffForm">
+                <input type="text" id="staffName" placeholder="Staff Name" required>
+                <select id="staffAction">
+                    <option value="checkin">Check In</option>
+                    <option value="checkout">Check Out</option>
+                </select>
+                <button type="submit">Record</button>
+            </form>
+            <ul id="staffList"></ul>
+        </section>
+
+        <!-- Expenses -->
+        <section id="expenses">
+            <h3>Expense Tracker</h3>
+            <form id="expenseForm">
+                <input type="text" id="expenseName" placeholder="Expense Name" required>
+                <input type="number" id="expenseAmount" placeholder="Amount" required>
+                <button type="submit">Add Expense</button>
+            </form>
+            <ul id="expenseList"></ul>
+            <p>Total Expenses: $<span id="expenseTotal">0</span></p>
+        </section>
+
+        <!-- AI Insights Placeholder -->
+        <section id="ai-insights">
+            <h3>AI Insights</h3>
+            <p>AI recommendations for sales, staff, and operations will appear here.</p>
+        </section>
+    </main>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
