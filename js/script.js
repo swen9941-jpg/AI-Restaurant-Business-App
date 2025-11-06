@@ -1,18 +1,91 @@
+// --- Inventory Management ---
+const inventoryForm = document.getElementById("inventoryForm");
+const inventoryList = document.getElementById("inventoryList");
+let inventory = {};
+
+inventoryForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    const item = document.getElementById("inventoryItem").value;
+    const qty = parseInt(document.getElementById("inventoryQty").value);
+
+    if(inventory[item]) {
+        inventory[item] += qty;
+    } else {
+        inventory[item] = qty;
+    }
+    renderInventory();
+    inventoryForm.reset();
+});
+
+function renderInventory() {
+    inventoryList.innerHTML = "";
+    for(let item in inventory){
+        const li = document.createElement("li");
+        li.textContent = `${item} - Quantity: ${inventory[item]}`;
+        inventoryList.appendChild(li);
+    }
+}
+
 // --- Online Orders ---
 const orderForm = document.getElementById("orderForm");
 const orderList = document.getElementById("orderList");
+let orders = [];
+let salesCount = {};
+let totalRevenue = 0;
 
 orderForm.addEventListener("submit", function(e) {
     e.preventDefault();
     const customer = document.getElementById("orderCustomer").value;
     const item = document.getElementById("orderItem").value;
 
-    const li = document.createElement("li");
-    li.textContent = `${customer} ordered ${item}`;
-    orderList.appendChild(li);
+    // Decrease inventory
+    if(inventory[item] && inventory[item] > 0){
+        inventory[item]--;
+        renderInventory();
+    } else {
+        alert(`${item} is out of stock!`);
+        return;
+    }
 
+    orders.push({ customer, item, amount: 10 }); // Assume $10 per item
+    totalRevenue += 10;
+    
+    // Track sales count per item
+    salesCount[item] = (salesCount[item] || 0) + 1;
+
+    renderOrders();
+    renderSales();
+    renderAI();
     orderForm.reset();
 });
+
+function renderOrders(){
+    orderList.innerHTML = "";
+    orders.forEach(o => {
+        const li = document.createElement("li");
+        li.textContent = `${o.customer} ordered ${o.item}`;
+        orderList.appendChild(li);
+    });
+}
+
+// --- Sales Summary ---
+const totalOrdersEl = document.getElementById("totalOrders");
+const totalRevenueEl = document.getElementById("totalRevenue");
+const topItemsEl = document.getElementById("topItems");
+
+function renderSales(){
+    totalOrdersEl.textContent = orders.length;
+    totalRevenueEl.textContent = totalRevenue.toFixed(2);
+
+    // Top 3 items
+    const sortedItems = Object.entries(salesCount).sort((a,b) => b[1]-a[1]).slice(0,3);
+    topItemsEl.innerHTML = "";
+    sortedItems.forEach(([item, count]) => {
+        const li = document.createElement("li");
+        li.textContent = `${item} - Sold: ${count}`;
+        topItemsEl.appendChild(li);
+    });
+}
 
 // --- Staff Management ---
 const staffForm = document.getElementById("staffForm");
@@ -81,4 +154,26 @@ function renderExpenses() {
         total += exp.amount;
     });
     expenseTotal.textContent = total.toFixed(2);
+}
+
+// --- AI Insights ---
+const aiList = document.getElementById("aiList");
+
+function renderAI(){
+    aiList.innerHTML = "";
+    // Low stock alerts
+    for(let item in inventory){
+        if(inventory[item] <= 2){
+            const li = document.createElement("li");
+            li.textContent = `Low stock alert: ${item} (${inventory[item]} left)`;
+            aiList.appendChild(li);
+        }
+    }
+    // Top selling item suggestion
+    const top = Object.entries(salesCount).sort((a,b) => b[1]-a[1])[0];
+    if(top){
+        const li = document.createElement("li");
+        li.textContent = `Top-selling item: ${top[0]} - Consider promoting similar items!`;
+        aiList.appendChild(li);
+    }
 }
