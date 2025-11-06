@@ -1,89 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Restaurant & Business App</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>POS — Black & Gold</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-    <aside class="sidebar">
-        <h2>Business Dashboard</h2>
-        <ul>
-            <li><a href="#sales">Sales & POS</a></li>
-            <li><a href="#orders">Online Orders</a></li>
-            <li><a href="#staff">Staff Management</a></li>
-            <li><a href="#expenses">Expenses</a></li>
-            <li><a href="#inventory">Inventory</a></li>
-            <li><a href="#ai-insights">AI Insights</a></li>
-        </ul>
+  <header class="topbar">
+    <div class="brand">
+      <img src="images/hero.jpg" alt="Hero" class="hero-thumb"/>
+      <div class="brand-text">
+        <h1>French Fries Bar & Grill</h1>
+        <p class="subtitle">Luxury Street Food — Black & Gold POS</p>
+      </div>
+    </div>
+    <div class="top-stats">
+      <div class="stat">Orders Today: <strong id="statOrders">0</strong></div>
+      <div class="stat">Revenue: <strong id="statRevenue">$0.00</strong></div>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <!-- Left: Products / POS Buttons -->
+    <section class="panel products-panel">
+      <h2>Menu / POS</h2>
+      <div class="products-grid" id="productsGrid">
+        <!-- product cards inserted here -->
+      </div>
+      <div class="controls">
+        <button id="openInventory" class="btn small">Inventory</button>
+        <button id="openStaff" class="btn small">Staff</button>
+        <button id="openExpenses" class="btn small">Expenses</button>
+        <button id="clearData" class="btn small danger">Clear Local Data</button>
+      </div>
+    </section>
+
+    <!-- Right: Cart + Orders + Insights -->
+    <aside class="panel right-panel">
+      <div class="card cart-card">
+        <h3>Cart</h3>
+        <ul id="cartList" class="cart-list"></ul>
+        <div class="cart-footer">
+          <div>Total: $<span id="cartTotal">0.00</span></div>
+          <button id="placeOrder" class="btn gold">Place Order</button>
+        </div>
+      </div>
+
+      <div class="card orders-card">
+        <h3>Orders</h3>
+        <ul id="ordersList" class="orders-list"></ul>
+      </div>
+
+      <div class="card insights-card">
+        <h3>AI Insights</h3>
+        <ul id="insightsList" class="insights-list"></ul>
+      </div>
     </aside>
+  </main>
 
-    <main class="main-content">
-        <!-- Sales Summary -->
-        <section id="sales">
-            <h3>Sales & POS</h3>
-            <p>Total Orders Today: <span id="totalOrders">0</span></p>
-            <p>Total Revenue: $<span id="totalRevenue">0.00</span></p>
-            <h4>Top Selling Items:</h4>
-            <ul id="topItems"></ul>
-        </section>
+  <!-- Inventory modal -->
+  <div class="modal" id="inventoryModal" aria-hidden="true">
+    <div class="modal-inner">
+      <h3>Inventory Management</h3>
+      <form id="inventoryForm" class="inline-form">
+        <input id="invName" placeholder="Item name" required />
+        <input id="invQty" type="number" min="0" placeholder="Qty" required />
+        <input id="invPrice" type="number" min="0" step="0.01" placeholder="Price" required />
+        <button class="btn small gold" type="submit">Add / Update</button>
+      </form>
+      <ul id="inventoryList"></ul>
+      <button class="btn small" id="closeInventory">Close</button>
+    </div>
+  </div>
 
-        <!-- Online Orders -->
-        <section id="orders">
-            <h3>Online Orders</h3>
-            <form id="orderForm">
-                <input type="text" id="orderCustomer" placeholder="Customer Name" required>
-                <input type="text" id="orderItem" placeholder="Item Ordered" required>
-                <button type="submit">Add Order</button>
-            </form>
-            <ul id="orderList"></ul>
-        </section>
+  <!-- Staff modal -->
+  <div class="modal" id="staffModal" aria-hidden="true">
+    <div class="modal-inner">
+      <h3>Staff Check-in / Check-out</h3>
+      <form id="staffForm" class="inline-form">
+        <input id="staffName" placeholder="Staff name" required />
+        <select id="staffAction">
+          <option value="checkin">Check In</option>
+          <option value="checkout">Check Out</option>
+        </select>
+        <button class="btn small gold" type="submit">Record</button>
+      </form>
+      <ul id="staffList"></ul>
+      <button class="btn small" id="closeStaff">Close</button>
+    </div>
+  </div>
 
-        <!-- Staff Management -->
-        <section id="staff">
-            <h3>Staff Management</h3>
-            <form id="staffForm">
-                <input type="text" id="staffName" placeholder="Staff Name" required>
-                <select id="staffAction">
-                    <option value="checkin">Check In</option>
-                    <option value="checkout">Check Out</option>
-                </select>
-                <button type="submit">Record</button>
-            </form>
-            <ul id="staffList"></ul>
-        </section>
+  <!-- Expenses modal -->
+  <div class="modal" id="expensesModal" aria-hidden="true">
+    <div class="modal-inner">
+      <h3>Expenses</h3>
+      <form id="expenseForm" class="inline-form">
+        <input id="expName" placeholder="Expense name" required />
+        <input id="expAmount" type="number" step="0.01" min="0" placeholder="Amount" required />
+        <button class="btn small gold" type="submit">Add Expense</button>
+      </form>
+      <ul id="expenseList"></ul>
+      <div class="expense-total">Total Expenses: $<span id="expenseTotal">0.00</span></div>
+      <button class="btn small" id="closeExpenses">Close</button>
+    </div>
+  </div>
 
-        <!-- Expenses -->
-        <section id="expenses">
-            <h3>Expense Tracker</h3>
-            <form id="expenseForm">
-                <input type="text" id="expenseName" placeholder="Expense Name" required>
-                <input type="number" id="expenseAmount" placeholder="Amount" required>
-                <button type="submit">Add Expense</button>
-            </form>
-            <ul id="expenseList"></ul>
-            <p>Total Expenses: $<span id="expenseTotal">0</span></p>
-        </section>
-
-        <!-- Inventory -->
-        <section id="inventory">
-            <h3>Inventory Management</h3>
-            <form id="inventoryForm">
-                <input type="text" id="inventoryItem" placeholder="Item Name" required>
-                <input type="number" id="inventoryQty" placeholder="Quantity" required>
-                <button type="submit">Add / Update Stock</button>
-            </form>
-            <ul id="inventoryList"></ul>
-        </section>
-
-        <!-- AI Insights -->
-        <section id="ai-insights">
-            <h3>AI Insights</h3>
-            <ul id="aiList"></ul>
-        </section>
-    </main>
-
-    <script src="js/script.js"></script>
+  <script src="js/script.js"></script>
 </body>
 </html>
