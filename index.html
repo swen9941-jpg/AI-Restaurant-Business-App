@@ -3,34 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SwenShop POS Pro</title>
+<title>SwenShop POS Pro Touch</title>
 <style>
   body { background:#000; color:#FFD700; font-family:Arial,sans-serif; margin:0; padding:0; }
   h1,h2,h3 { text-align:center; color:gold; }
   .container { padding:10px; }
+  button { cursor:pointer; }
+
   /* Modals */
-  #pinModal, #staffModal, #customProductModal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; justify-content:center; align-items:center; z-index:999; }
+  #pinModal, #staffModal, #customProductModal { position:fixed; top:0; left:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; z-index:9999; background:rgba(0,0,0,0.9); }
   .hidden { display:none; }
   .modalBox { background:#111; padding:20px; border-radius:8px; text-align:center; max-width:400px; width:90%; }
-  .modalBox input, .modalBox select { padding:8px; width:80%; margin-bottom:10px; text-align:center; font-size:16px; }
-  .modalBox button { padding:10px 15px; margin:5px; background:gold; color:black; border:none; border-radius:6px; font-weight:bold; cursor:pointer; }
+  .modalBox input, .modalBox select { padding:10px; width:80%; margin-bottom:10px; text-align:center; font-size:18px; }
+  .modalBox button { padding:12px 15px; margin:5px; background:gold; color:black; border:none; border-radius:6px; font-weight:bold; font-size:16px; }
+
+  /* Categories Tabs */
+  #categories { display:flex; justify-content:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;}
+  #categories button { padding:10px 15px; font-size:18px; border-radius:8px; border:none; background:#222; color:gold; flex:1; min-width:100px; }
+  #categories button.active { background:gold; color:black; font-weight:bold; }
+
   /* POS Grid */
-  #productsGrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:10px; margin-bottom:10px; }
-  .product-card { background:#111; padding:10px; border-radius:8px; text-align:center; display:flex; flex-direction:column; justify-content:space-between; }
-  .product-card button { margin-top:5px; padding:8px; background:gold; border:none; color:black; font-weight:bold; cursor:pointer; font-size:14px; border-radius:4px;}
-  .badge-low { background:red; color:white; padding:2px 4px; font-size:10px; border-radius:4px; margin-top:4px;}
+  #productsGrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-bottom:10px; }
+  .product-card { background:#111; padding:10px; border-radius:8px; text-align:center; display:flex; flex-direction:column; justify-content:space-between; height:140px; }
+  .product-card button { margin-top:5px; padding:10px; background:gold; border:none; color:black; font-weight:bold; font-size:16px; border-radius:6px; }
+
+  .badge-low { background:red; color:white; padding:2px 4px; font-size:12px; border-radius:4px; margin-top:4px;}
+
   /* Cart */
-  #cartList li { display:flex; justify-content:space-between; margin-bottom:4px; }
-  .btnRemove { background:red; color:white; border:none; border-radius:4px; cursor:pointer; padding:2px 5px; }
-  .order-actions button { width:48%; padding:12px; background:gold; border:none; font-size:16px; color:black; cursor:pointer; border-radius:6px; margin-top:10px; font-weight:bold;}
-  /* Staff Clock-In Table */
+  #cartList li { display:flex; justify-content:space-between; margin-bottom:4px; font-size:18px; }
+  .btnRemove { background:red; color:white; border:none; border-radius:4px; cursor:pointer; padding:4px 6px; font-size:16px; }
+
+  .order-actions button { width:48%; padding:16px; background:gold; border:none; font-size:18px; color:black; cursor:pointer; border-radius:8px; margin-top:10px; font-weight:bold;}
+  input[type="text"]{ font-size:18px; padding:6px; width:100%; margin-bottom:8px; }
+
+  /* Staff Table */
   table { width:100%; border-collapse:collapse; margin-bottom:10px; }
-  th, td { border:1px solid gold; padding:6px; text-align:center; }
-  .btnClock { padding:4px 8px; background:gold; color:black; border:none; border-radius:4px; cursor:pointer; font-weight:bold;}
+  th, td { border:1px solid gold; padding:6px; text-align:center; font-size:16px; }
+  .btnClock { padding:6px 10px; background:gold; color:black; border:none; border-radius:4px; cursor:pointer; font-weight:bold; }
 </style>
 </head>
 <body>
 
+<!-- PIN LOGIN -->
 <div id="pinModal">
   <div class="modalBox">
     <h2>Enter PIN</h2>
@@ -42,6 +56,7 @@
   </div>
 </div>
 
+<!-- STAFF MODAL -->
 <div id="staffModal" class="hidden">
   <div class="modalBox">
     <h2>Staff Management</h2>
@@ -57,6 +72,7 @@
   </div>
 </div>
 
+<!-- CUSTOM PRODUCT MODAL -->
 <div id="customProductModal" class="hidden">
   <div class="modalBox">
     <h2>Add Custom Product</h2>
@@ -67,20 +83,22 @@
   </div>
 </div>
 
+<!-- MAIN CONTAINER -->
 <div class="container">
-<h1>SwenShop POS Pro</h1>
+<h1>SwenShop POS Pro Touch</h1>
 
-<!-- Admin Button -->
 <button onclick="openStaffModal()">⚙️ Staff/Admin Settings</button>
 
+<!-- Categories -->
+<div id="categories"></div>
+
 <!-- Products Grid -->
-<h2>Products</h2>
 <div id="productsGrid"></div>
 
-<!-- Custom Product -->
+<!-- Add Custom Product -->
 <button onclick="openCustomProductModal()">➕ Add Custom Product</button>
 
-<!-- Cart / Order Summary -->
+<!-- Cart -->
 <h2>Order</h2>
 Customer Name: <input type="text" id="custName" placeholder="Optional"><br><br>
 <ul id="cartList"></ul>
@@ -88,7 +106,6 @@ Customer Name: <input type="text" id="custName" placeholder="Optional"><br><br>
 <div class="order-actions">
   <button id="placeOrderBtn">Place Order</button>
   <button id="sendWhatsAppBtn">Send WhatsApp</button>
-  <button id="printTicketBtn">Print Ticket</button>
   <button onclick="newOrder()">New Order</button>
 </div>
 </div>
@@ -96,36 +113,36 @@ Customer Name: <input type="text" id="custName" placeholder="Optional"><br><br>
 <script>
 /* ===== CONFIG ===== */
 const WHATSAPP_NUMBER = "50585065976";
-const STORE_KEY = "swenpos_pro_v2";
+const STORE_KEY = "swenpos_touch_v2";
 let state = JSON.parse(localStorage.getItem(STORE_KEY)) || {
     pin:"1234",
     staff:[],
     products:[
-        {name:"Fries Classic", price:3.5, qty:20},
-        {name:"Cheesy Fries", price:4.5, qty:12},
-        {name:"Bacon Fries", price:5.5, qty:8},
-        {name:"Burger", price:7, qty:6},
-        {name:"Soda", price:1.5, qty:30},
-        {name:"Combo 1", price:10, qty:10},
-        {name:"Extra Cheese", price:0.8, qty:50}
+        {name:"Fries Classic", price:3.5, qty:20, category:"Fries"},
+        {name:"Cheesy Fries", price:4.5, qty:12, category:"Fries"},
+        {name:"Bacon Fries", price:5.5, qty:8, category:"Fries"},
+        {name:"Burger", price:7, qty:6, category:"Burgers"},
+        {name:"Double Burger", price:9, qty:4, category:"Burgers"},
+        {name:"Soda", price:1.5, qty:30, category:"Drinks"},
+        {name:"Combo 1", price:10, qty:10, category:"Combos"},
+        {name:"Combo 2", price:12, qty:5, category:"Combos"}
     ],
     orders:[]
 };
+
+let cart=[], cartTotal=0;
+let activeCategory = "All";
 
 /* ===== PIN LOGIN ===== */
 const pinModal = document.getElementById("pinModal");
 const pinInput = document.getElementById("pinInput");
 document.getElementById("pinLogin").onclick = ()=>{
-    if(pinInput.value === state.pin){
-        pinModal.classList.add("hidden"); renderAll();
-        // Removed auto staff modal
-    } else alert("Incorrect PIN");
+    if(pinInput.value === state.pin){ pinModal.classList.add("hidden"); renderAll(); }
+    else alert("Incorrect PIN");
 }
-document.getElementById("pinGuest").onclick = ()=>{
-    pinModal.classList.add("hidden"); renderAll();
-};
+document.getElementById("pinGuest").onclick = ()=>{ pinModal.classList.add("hidden"); renderAll(); };
 
-/* ===== STAFF MANAGEMENT MODAL ===== */
+/* ===== STAFF MANAGEMENT ===== */
 const staffModal = document.getElementById("staffModal");
 const staffList = document.getElementById("staffList");
 const staffNameInput = document.getElementById("staffNameInput");
@@ -137,38 +154,12 @@ document.getElementById("addStaffBtn").onclick = ()=>{
 }
 function openStaffModal(){ staffModal.classList.remove("hidden"); renderStaff(); }
 function closeStaffModal(){ staffModal.classList.add("hidden"); }
-function clockIn(idx){
-    const s=state.staff[idx];
-    if(!s.checkedIn){ s.checkedIn=true; s.startTime=Date.now(); s.onBreak=false; }
-    saveState(); renderStaff();
-}
-function startBreak(idx){
-    const s=state.staff[idx];
-    if(s.checkedIn && !s.onBreak){ s.onBreak=true; s.totalTime += (Date.now()-s.startTime); }
-    else if(s.onBreak){ s.onBreak=false; s.startTime=Date.now(); }
-    saveState(); renderStaff();
-}
-function clockOut(idx){
-    const s=state.staff[idx];
-    if(s.checkedIn){ if(!s.onBreak) s.totalTime += (Date.now()-s.startTime); s.checkedIn=false; s.startTime=null; s.onBreak=false; alert(`${s.name} worked ${(s.totalTime/1000/60).toFixed(2)} minutes`); s.totalTime=0; }
-    saveState(); renderStaff();
-}
-function renderStaff(){
-    staffList.innerHTML="";
-    state.staff.forEach((s,idx)=>{
-        const tr=document.createElement("tr");
-        tr.innerHTML=`
-        <td>${s.name}</td>
-        <td>${s.checkedIn ? (s.onBreak?"On Break":"Working") : "Offline"}</td>
-        <td><button class="btnClock" onclick="clockIn(${idx})" ${s.checkedIn?"disabled":""}>Clock-In</button></td>
-        <td><button class="btnClock" onclick="startBreak(${idx})" ${!s.checkedIn?"disabled":""}>Break/Resume</button></td>
-        <td><button class="btnClock" onclick="clockOut(${idx})" ${!s.checkedIn?"disabled":""}>Clock-Out</button></td>
-        `;
-        staffList.appendChild(tr);
-    });
-}
+function clockIn(idx){ const s=state.staff[idx]; if(!s.checkedIn){ s.checkedIn=true; s.startTime=Date.now(); s.onBreak=false; } saveState(); renderStaff(); }
+function startBreak(idx){ const s=state.staff[idx]; if(s.checkedIn){ if(!s.onBreak){ s.onBreak=true; s.totalTime += (Date.now()-s.startTime); } else { s.onBreak=false; s.startTime=Date.now(); } } saveState(); renderStaff(); }
+function clockOut(idx){ const s=state.staff[idx]; if(s.checkedIn){ if(!s.onBreak) s.totalTime += (Date.now()-s.startTime); s.checkedIn=false; s.startTime=null; s.onBreak=false; alert(`${s.name} worked ${(s.totalTime/1000/60).toFixed(2)} min`); s.totalTime=0; } saveState(); renderStaff(); }
+function renderStaff(){ staffList.innerHTML=""; state.staff.forEach((s,idx)=>{ const tr=document.createElement("tr"); tr.innerHTML=`<td>${s.name}</td><td>${s.checkedIn ? (s.onBreak?"On Break":"Working") : "Offline"}</td><td><button class="btnClock" onclick="clockIn(${idx})" ${s.checkedIn?"disabled":""}>Clock-In</button></td><td><button class="btnClock" onclick="startBreak(${idx})" ${!s.checkedIn?"disabled":""}>Break/Resume</button></td><td><button class="btnClock" onclick="clockOut(${idx})" ${!s.checkedIn?"disabled":""}>Clock-Out</button></td>`; staffList.appendChild(tr); }); }
 
-/* ====== CUSTOM PRODUCT MODAL ===== */
+/* ===== CUSTOM PRODUCT ===== */
 const customProductModal = document.getElementById("customProductModal");
 function openCustomProductModal(){ customProductModal.classList.remove("hidden"); }
 function closeCustomProductModal(){ customProductModal.classList.add("hidden"); }
@@ -176,15 +167,33 @@ document.getElementById("addCustomProdBtn").onclick = ()=>{
     const name=document.getElementById("customProdName").value.trim();
     const price=parseFloat(document.getElementById("customProdPrice").value);
     if(!name || isNaN(price)) return alert("Invalid input");
-    cart.push({name, price}); renderCart(); closeCustomProductModal();
+    cart.push({name, price});
+    renderCart();
+    closeCustomProductModal();
+    document.getElementById("customProdName").value = "";
+    document.getElementById("customProdPrice").value = "";
 }
 
-/* ====== PRODUCTS GRID ===== */
+/* ===== CATEGORIES ===== */
+const categoriesDiv = document.getElementById("categories");
+function renderCategories(){
+    const cats = ["All", ...new Set(state.products.map(p=>p.category))];
+    categoriesDiv.innerHTML="";
+    cats.forEach(cat=>{
+        const btn = document.createElement("button");
+        btn.textContent = cat;
+        btn.className = cat===activeCategory?"active":"";
+        btn.onclick = ()=>{ activeCategory=cat; renderProducts(); renderCategories(); };
+        categoriesDiv.appendChild(btn);
+    });
+}
+
+/* ===== PRODUCTS GRID ===== */
 const productsGrid = document.getElementById("productsGrid");
-let cart=[], cartTotal=0;
 function renderProducts(){
     productsGrid.innerHTML="";
-    state.products.forEach((p,idx)=>{
+    const filtered = activeCategory==="All"?state.products:state.products.filter(p=>p.category===activeCategory);
+    filtered.forEach((p,idx)=>{
         const card=document.createElement("div"); card.className="product-card";
         card.innerHTML=`<div>${p.name}</div><div>C$${p.price}</div><div>Stock: ${p.qty}</div>`;
         const btn=document.createElement("button"); btn.textContent="Add"; btn.disabled = p.qty<=0;
@@ -195,28 +204,17 @@ function renderProducts(){
     });
 }
 
-/* ====== CART ===== */
+/* ===== CART ===== */
 const cartList=document.getElementById("cartList");
 const cartTotalEl=document.getElementById("cartTotal");
 const custName=document.getElementById("custName");
-function renderCart(){
-    cartList.innerHTML=""; cartTotal=0;
-    cart.forEach((item,idx)=>{
-        const li=document.createElement("li");
-        li.innerHTML=`<span>${item.name}</span><span>C$${item.price}</span>`;
-        const btn=document.createElement("button"); btn.textContent="X"; btn.className="btnRemove";
-        btn.onclick=()=>{ cart.splice(idx,1); renderCart(); };
-        li.appendChild(btn); cartList.appendChild(li); cartTotal+=item.price;
-    });
-    cartTotalEl.innerText=cartTotal.toFixed(2);
-}
+function renderCart(){ cartList.innerHTML=""; cartTotal=0; cart.forEach((item,idx)=>{ const li=document.createElement("li"); li.innerHTML=`<span>${item.name}</span><span>C$${item.price}</span>`; const btn=document.createElement("button"); btn.textContent="X"; btn.className="btnRemove"; btn.onclick=()=>{ cart.splice(idx,1); renderCart(); }; li.appendChild(btn); cartList.appendChild(li); cartTotal+=item.price; }); cartTotalEl.innerText=cartTotal.toFixed(2); }
 
-/* ====== ORDERS / TICKET / WHATSAPP ===== */
+/* ===== ORDERS / TICKET / WHATSAPP ===== */
 document.getElementById("placeOrderBtn").onclick = ()=>{
     if(cart.length===0){ alert("Cart empty"); return; }
     state.orders.push({items:[...cart], total:cartTotal, customer:custName.value, time:new Date().toISOString()});
     saveState(); renderCart(); renderProducts();
-    // Print kitchen ticket automatically
     const w=window.open("","PRINT","height=600,width=400");
     w.document.write(`<pre style="font-size:18px;">French Fries Bar & Grill
 Order Ticket
@@ -247,7 +245,7 @@ function newOrder(){ cart=[]; cartTotal=0; custName.value=""; renderCart(); }
 function saveState(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
 
 /* ====== RENDER ALL ===== */
-function renderAll(){ renderProducts(); renderCart(); renderStaff(); }
+function renderAll(){ renderCategories(); renderProducts(); renderCart(); renderStaff(); }
 renderAll();
 </script>
 
