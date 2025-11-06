@@ -21,6 +21,7 @@
   .modal-content { background:#222; padding:20px; border-radius:10px; width:400px; max-height:80%; overflow:auto; }
   .modal-content input, .modal-content select { width:100%; padding:5px; margin:5px 0; border-radius:4px; border:none; }
   .modal-content button { margin-top:10px; }
+  #staffList li, #expenseList li { margin:5px 0; }
 </style>
 </head>
 <body>
@@ -42,6 +43,8 @@
   <div>Total: $<span id="cartTotal">0.00</span></div>
   <button id="placeOrder">Place Order</button>
   <button id="addCustomBtn">Add Custom Product</button>
+  <button id="manageStaffBtn">Manage Staff</button>
+  <button id="manageExpensesBtn">Expenses</button>
 </div>
 
 <!-- Custom Product Modal -->
@@ -56,9 +59,39 @@
   </div>
 </div>
 
+<!-- Staff Modal -->
+<div class="modal" id="staffModal">
+  <div class="modal-content">
+    <h3>Staff Management</h3>
+    <input type="text" id="staffName" placeholder="Staff Name">
+    <select id="staffAction">
+      <option value="checkin">Clock In</option>
+      <option value="break">Break/Restroom</option>
+      <option value="checkout">Clock Out</option>
+    </select>
+    <button id="saveStaff">Submit</button>
+    <button id="closeStaff">Close</button>
+    <h4>Staff Today:</h4>
+    <ul id="staffList"></ul>
+  </div>
+</div>
+
+<!-- Expenses Modal -->
+<div class="modal" id="expenseModal">
+  <div class="modal-content">
+    <h3>Expenses</h3>
+    <input type="text" id="expenseName" placeholder="Expense Name">
+    <input type="number" id="expenseAmount" placeholder="Amount" step="0.01">
+    <button id="saveExpense">Add Expense</button>
+    <button id="closeExpense">Close</button>
+    <h4>Expense List:</h4>
+    <ul id="expenseList"></ul>
+  </div>
+</div>
+
 <script>
 // ---------- Data ----------
-const STORE_KEY="pos_luxury_v1";
+const STORE_KEY="pos_luxury_v2";
 let state = JSON.parse(localStorage.getItem(STORE_KEY)) || {
   products: [
     { name:"Fries Classic", price:3.5, qty:20, category:"Fries" },
@@ -67,7 +100,9 @@ let state = JSON.parse(localStorage.getItem(STORE_KEY)) || {
     { name:"Burger", price:7, qty:6, category:"Burgers" },
     { name:"Soda", price:1.5, qty:30, category:"Drinks" }
   ],
-  orders: []
+  orders: [],
+  staff: {},
+  expenses: []
 };
 let cart=[];
 
@@ -129,7 +164,6 @@ function renderCart(){
 const customModal=document.getElementById("customModal");
 document.getElementById("addCustomBtn").onclick=()=> customModal.style.display="flex";
 document.getElementById("cancelCustom").onclick=()=> customModal.style.display="none";
-
 document.getElementById("saveCustom").onclick=()=>{
   const name=document.getElementById("customName").value.trim();
   const price=parseFloat(document.getElementById("customPrice").value);
@@ -144,7 +178,6 @@ document.getElementById("saveCustom").onclick=()=>{
 // ---------- Place Order ----------
 document.getElementById("placeOrder").onclick=()=>{
   if(cart.length===0) return alert("Cart empty");
-  // Reduce stock if exists
   cart.forEach(item=>{
     const prod=state.products.find(p=>p.name===item.name);
     if(prod) prod.qty-=1;
@@ -163,9 +196,61 @@ document.getElementById("placeOrder").onclick=()=>{
   cart=[]; renderCart(); renderProducts();
 };
 
-// ---------- Initial render ----------
-renderProducts();
-renderCart();
+// ---------- Staff Modal ----------
+const staffModal=document.getElementById("staffModal");
+document.getElementById("manageStaffBtn").onclick=()=> staffModal.style.display="flex";
+document.getElementById("closeStaff").onclick=()=> staffModal.style.display="none";
+
+document.getElementById("saveStaff").onclick=()=>{
+  const name=document.getElementById("staffName").value.trim();
+  const action=document.getElementById("staffAction").value;
+  if(!name) return alert("Enter staff name");
+  if(!state.staff[name]) state.staff[name]={checkin:null,totalHours:0,status:"Not Working"};
+  const staff=state.staff[name];
+  const now=Date.now();
+  if(action==="checkin"){
+    staff.checkin=now; staff.status="Working";
+  } else if(action==="break"){
+    if(staff.checkin){ staff.status="Break"; } else return alert("Staff not checked in");
+  } else if(action==="checkout"){
+    if(staff.checkin){ staff.totalHours += (now-staff.checkin)/(1000*60*60); staff.checkin=null; staff.status="Not Working"; } else return alert("Staff not checked in");
+  }
+  saveState(); renderStaff();
+};
+
+function renderStaff(){
+  const list=document.getElementById("staffList");
+  list.innerHTML="";
+  Object.entries(state.staff).forEach(([name,s])=>{
+    const hours=s.totalHours.toFixed(2);
+    list.innerHTML += `<li>${name} — ${hours} hrs — ${s.status}${s.checkin? ' • Clocked In' : ''}</li>`;
+  });
+}
+
+// ---------- Expenses Modal ----------
+const expenseModal=document.getElementById("expenseModal");
+document.getElementById("manageExpensesBtn").onclick=()=> expenseModal.style.display="flex";
+document.getElementById("closeExpense").onclick=()=> expenseModal.style.display="none";
+
+document.getElementById("saveExpense").onclick=()=>{
+  const name=document.getElementById("expenseName").value.trim();
+  const amount=parseFloat(document.getElementById("expenseAmount").value);
+  if(!name || isNaN(amount)) return alert("Enter valid expense");
+  state.expenses.push({name,amount,time:new Date().toLocaleString()});
+  saveState(); renderExpenses();
+  document.getElementById("expenseName").value=""; document.getElementById("expenseAmount").value="";
+};
+
+function renderExpenses(){
+  const list=document.getElementById("expenseList");
+  list.innerHTML="";
+  state.expenses.forEach(e=>{
+    list.innerHTML += `<li>${e.name} — $${e.amount.toFixed(2)} — ${e.time}</li>`;
+  });
+}
+
+// ---------- Initial Render ----------
+renderProducts(); renderCart(); renderStaff(); renderExpenses();
 </script>
 
 </body>
